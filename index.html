@@ -6,29 +6,30 @@
 <title>The Ledger — Habit Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Manrope:wght@300;400;500;600;700&family=Rubik+Glitch&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Manrope:wght@300;400;500;600;700&family=Monoton&family=Rubik+Glitch&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   :root{
-    --bg:#F2EEE4;            /* Deeper Soft Parchment for contrast */
-    --panel:#FFFFFF;         /* Pure White Panel */
-    --panel-raised:#F8F5ED;  /* Light Tan Hover */
-    --paper:#1B3A48;         /* Rich Dark Teal Ink */
-    --paper-dim:#5A6A70;     /* Darker Muted Text */
-    --brass:#E76F51;         /* Burnt Sienna Accent */
-    --brass-bright:#F4A261;  /* Orange Highlight */
-    --brass-dim:#E9C46A;     /* Saffron */
-    --teal:#2A9D8F;          /* Teal for secondary text */
+    --bg:#F2EEE4;
+    --panel:#FFFFFF;
+    --panel-raised:#F8F5ED;
+    --paper:#1B3A48;
+    --paper-dim:#5A6A70;
+    --brass:#E76F51;
+    --brass-bright:#F4A261;
+    --brass-dim:#E9C46A;
+    --teal:#2A9D8F;
     --teal-dim:#2A9D8F;
-    --line:#D8D6CE;          /* Deeper Silver Border */
-    --line-bright:#C8C6BE;   /* Darker Silver Border */
-    --danger:#D62828;        /* Deep Red */
+    --line:#D8D6CE;
+    --line-bright:#C8C6BE;
+    --danger:#D62828;
     --radius:3px;
     
     --font-main: 'Rubik Glitch', cursive;
     --font-sub: 'Cinzel', serif;
     --font-body: 'Manrope', sans-serif;
     --font-mono: 'Space Mono', monospace;
+    --font-name: 'Monoton', cursive; /* Unique font for User's Name */
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -121,22 +122,26 @@
   .wrap{
     max-width:980px;
     margin:0 auto;
-    padding:56px 28px 120px;
+    padding:24px 28px 100px; /* Reduced top padding */
   }
 
   header.masthead{
     display:flex;
     justify-content:space-between;
-    align-items:flex-end;
+    align-items:flex-start; /* Aligns strictly to top */
     border-bottom:1px solid var(--line);
-    padding-bottom:22px;
-    margin-bottom:36px;
+    padding-bottom:24px;
+    margin-bottom:24px;
     gap:20px;
     flex-wrap:wrap;
   }
+  .masthead-left {
+    flex: 1;
+    min-width: 200px;
+  }
   .masthead-left h1{
     font-family: var(--font-main);
-    font-weight:400; /* Rubik Glitch only has 400 */
+    font-weight:400;
     font-size: 2.4rem;
     letter-spacing: 0.02em;
     margin:0;
@@ -152,30 +157,165 @@
     color: var(--brass);
     margin-top: 8px;
   }
-  .masthead-right{
+  .masthead-dates {
     font-family: var(--font-mono);
     font-size: 0.78rem;
     color: var(--paper-dim);
-    text-align: right;
+    margin-top: 12px;
     line-height: 1.6;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 8px;
   }
-  .masthead-right .date-line{color:var(--paper);}
+  .masthead-dates .date-line{color:var(--paper);}
+
+  /* ---------- Profile Button & Dropdown ---------- */
   .profile-section {
+    display: flex;
+    align-items: flex-start; /* Top right */
+  }
+  .profile-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+  .profile-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 3px 10px 3px 3px;
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+    font-family: var(--font-body);
+  }
+  .profile-btn:hover {
+    border-color: var(--brass);
+    background: var(--panel-raised);
+  }
+  .profile-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--brass), var(--brass-bright));
+    color: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    font-family: var(--font-sub);
+    text-transform: uppercase;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(231, 111, 81, 0.3);
+  }
+  .profile-caret {
+    font-size: 0.7rem;
+    color: var(--paper-dim);
+    transition: transform .15s ease;
+  }
+  .profile-btn.open .profile-caret { transform: rotate(180deg); }
+  .profile-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: 0 10px 30px rgba(27, 58, 72, 0.18);
+    min-width: 220px;
+    padding: 6px;
+    display: none;
+    z-index: 50;
+    animation: fadeIn .15s ease;
+  }
+  .profile-dropdown.active { display: block; }
+  .dropdown-item {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding-top: 5px;
-    border-top: 1px solid var(--line);
     width: 100%;
-    justify-content: flex-end;
+    background: transparent;
+    border: none;
+    padding: 10px 12px;
+    text-align: left;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: var(--paper);
+    border-radius: var(--radius);
+    transition: background .15s ease, color .15s ease;
   }
-  .user-email {
-    font-size: 0.75rem;
+  .dropdown-item:hover { background: var(--panel-raised); }
+  .dropdown-item.danger { color: var(--danger); }
+  .dropdown-item.danger:hover { background: rgba(214, 40, 40, 0.08); }
+  .dropdown-icon {
+    width: 22px;
+    text-align: center;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+  }
+  .dropdown-divider {
+    height: 1px;
+    background: var(--line);
+    margin: 5px 0;
+  }
+  .dropdown-header {
+    padding: 8px 12px 6px 12px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 5px;
+  }
+  .dropdown-header .dh-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--paper);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .dropdown-header .dh-email {
+    font-size: 0.72rem;
+    color: var(--paper-dim);
+    font-family: var(--font-mono);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 2px;
+  }
+
+  /* ---------- Welcome Banner ---------- */
+  .welcome-banner {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 36px;
+    padding: 18px 24px;
+    background: var(--panel);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 20px rgba(27, 58, 72, 0.05);
+    border: 1px solid var(--line);
+  }
+  .welcome-text {
+    font-family: var(--font-sub); /* Cinzel */
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--paper-dim);
+    margin: 0;
+    line-height: 1.5;
+  }
+  .welcome-text .welcome-name {
+    font-family: var(--font-name); /* Monoton */
+    color: var(--brass);
+    font-size: 1.6rem;
+    margin: 0 6px;
+    display: inline-block;
+    vertical-align: middle;
+    letter-spacing: 1px;
+  }
+  .welcome-text .welcome-quote {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
     color: var(--teal);
+    margin-top: 12px;
+    font-weight: 400;
   }
 
   /* ---------- summary strip ---------- */
@@ -252,6 +392,9 @@
   }
   .btn:hover{background:var(--brass-bright);}
   .btn:active{transform:translateY(1px);}
+  .btn:disabled{opacity:0.5; cursor:not-allowed;}
+  .btn.danger{background:var(--danger);}
+  .btn.danger:hover{background:#b51f1f;}
   .btn:focus-visible, .icon-btn:focus-visible, input:focus-visible, select:focus-visible{
     outline:2px solid var(--brass); outline-offset:2px;
   }
@@ -838,6 +981,31 @@
   }
   .btn-ghost:hover { color:var(--paper); border-color:var(--paper-dim); }
 
+  /* ---------- Toast notification ---------- */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--paper);
+    color: var(--bg);
+    padding: 12px 24px;
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    font-family: var(--font-body);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: opacity .25s ease, transform .25s ease;
+    z-index: 300;
+    pointer-events: none;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .toast.success { background: var(--teal); }
+  .toast.error { background: var(--danger); }
+
   footer.note{
     margin-top:28px;
     font-family: var(--font-mono);
@@ -849,7 +1017,7 @@
 
   /* ---------- responsive breakpoints ---------- */
   @media (max-width: 768px) {
-    .wrap { padding: 40px 20px 80px; }
+    .wrap { padding: 20px 20px 80px; }
     .chart-row { grid-template-columns: 1fr; }
     .analytics-grid { grid-template-columns: repeat(2, 1fr); }
     .masthead-left h1 { font-size: 1.8rem; }
@@ -858,11 +1026,24 @@
   }
 
   @media (max-width: 640px) {
-    .wrap { padding: 32px 12px 80px; }
+    .wrap { padding: 20px 16px 80px; }
     
-    header.masthead { flex-direction: column; align-items: flex-start; gap: 12px; }
-    .masthead-right { text-align: left; width: 100%; }
-    .profile-section { justify-content: space-between; }
+    header.masthead { 
+      flex-direction: row; 
+      align-items: flex-start;
+      gap: 12px; 
+    }
+    .masthead-left { 
+      min-width: auto; 
+      flex: 1;
+    }
+    .masthead-left h1 { font-size: 1.6rem; }
+    
+    .welcome-banner { padding: 14px 18px; margin-bottom: 28px; }
+    .welcome-text { font-size: 1rem; }
+    .welcome-text .welcome-name { font-size: 1.3rem; }
+    .welcome-text .welcome-quote { font-size: 0.75rem; }
+
     .summary { grid-template-columns: repeat(2, 1fr); margin-bottom: 28px; }
     .summary .cell { padding: 14px 16px; }
     .summary .cell .num { font-size: 1.6rem; }
@@ -939,6 +1120,8 @@
       border-bottom: none; 
       padding: 24px 20px 40px; 
     }
+
+    .profile-dropdown { right: 0; min-width: 200px; }
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -970,16 +1153,47 @@
       <div class="masthead-left">
         <h1>The Ledger</h1>
         <div class="sub">A daily register of practice</div>
+        <div class="masthead-dates">
+          <div class="date-line" id="todayLabel">—</div>
+          <div id="weekLabel">—</div>
+        </div>
       </div>
-      <div class="masthead-right">
-        <div class="date-line" id="todayLabel">—</div>
-        <div id="weekLabel">—</div>
-        <div class="profile-section">
-          <span class="user-email" id="userEmailDisplay"></span>
-          <button id="logoutBtn" class="btn-ghost" style="padding: 6px 12px; font-size: 0.75rem;">Logout</button>
+      <div class="profile-section">
+        <div class="profile-wrapper">
+          <button id="profileBtn" class="profile-btn" aria-label="Profile menu" aria-haspopup="true" aria-expanded="false">
+            <div class="profile-avatar" id="profileAvatar">U</div>
+            <span class="profile-caret">▾</span>
+          </button>
+          <div class="profile-dropdown" id="profileDropdown" role="menu">
+            <div class="dropdown-header">
+              <div class="dh-name" id="dropdownName">User</div>
+              <div class="dh-email" id="dropdownEmail">—</div>
+            </div>
+            <button class="dropdown-item" id="editNameOption" role="menuitem">
+              <span class="dropdown-icon">✎</span>
+              <span>Add / Edit Name</span>
+            </button>
+            <button class="dropdown-item" id="changePassOption" role="menuitem">
+              <span class="dropdown-icon">🔒</span>
+              <span>Change Password</span>
+            </button>
+            <button class="dropdown-item danger" id="deleteAccountOption" role="menuitem">
+              <span class="dropdown-icon">⚠</span>
+              <span>Delete Account</span>
+            </button>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item" id="logoutOption" role="menuitem">
+              <span class="dropdown-icon">⏻</span>
+              <span>Logout</span>
+            </button>
+          </div>
         </div>
       </div>
     </header>
+
+    <div class="welcome-banner">
+      <h2 id="welcomeMessage" class="welcome-text">Welcome back</h2>
+    </div>
 
     <div class="summary">
       <div class="cell">
@@ -1133,7 +1347,7 @@
   </div>
 </div>
 
-<!-- Edit Modal -->
+<!-- Edit Habit Modal -->
 <div class="modal-overlay" id="editOverlay">
   <div class="modal-box">
     <h3>Edit Habit</h3>
@@ -1162,23 +1376,74 @@
   </div>
 </div>
 
+<!-- Edit Name Modal -->
+<div class="modal-overlay" id="editNameOverlay">
+  <div class="modal-box">
+    <h3>Your Name</h3>
+    <p style="font-size: 0.85rem; color: var(--paper-dim); margin: -10px 0 20px 0; line-height: 1.5;">This name will be used to greet you on your dashboard.</p>
+    <input type="text" id="editNameInputField" class="modal-input" placeholder="Enter your name" maxlength="40">
+    <div class="modal-actions">
+      <button class="btn-ghost" id="cancelEditNameBtn">Cancel</button>
+      <button class="btn" id="saveNameBtn">Save Name</button>
+    </div>
+  </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal-overlay" id="changePassOverlay">
+  <div class="modal-box">
+    <h3>Change Password</h3>
+    <p style="font-size: 0.85rem; color: var(--paper-dim); margin: -10px 0 20px 0; line-height: 1.5;">For your security, please enter your current password.</p>
+    <input type="password" id="currentPassInput" class="modal-input" placeholder="Current password">
+    <input type="password" id="newPassInput" class="modal-input" placeholder="New password (min 6 characters)">
+    <input type="password" id="confirmPassInput" class="modal-input" placeholder="Confirm new password">
+    <div id="passChangeError" class="auth-error" style="margin-top: -5px;"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="cancelChangePassBtn">Cancel</button>
+      <button class="btn" id="savePassBtn">Update Password</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal-overlay" id="deleteAccountOverlay">
+  <div class="modal-box" style="border-color: var(--danger);">
+    <h3 style="color: var(--danger);">Delete Account</h3>
+    <p style="font-size: 0.88rem; color: var(--paper-dim); margin: -10px 0 20px 0; line-height: 1.5;">
+      This action is <b style="color: var(--danger);">permanent and irreversible</b>. All your habits, logs, and account data will be permanently deleted.
+    </p>
+    <input type="password" id="deletePassInput" class="modal-input" placeholder="Enter your password to confirm">
+    <div id="deleteAccountError" class="auth-error" style="margin-top: -5px;"></div>
+    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--paper); margin: 12px 0; cursor: pointer;">
+      <input type="checkbox" id="deleteConfirmCheck" style="cursor: pointer;">
+      I understand this action cannot be undone
+    </label>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="cancelDeleteAccountBtn">Cancel</button>
+      <button class="btn danger" id="confirmDeleteBtn" disabled>Delete Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div id="toast" class="toast"></div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, doc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, updatePassword, deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, setDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // ==========================================
 // FIREBASE CONFIGURATION
 // ==========================================
-// PASTE YOUR FIREBASE CONFIG OBJECT HERE
-  const firebaseConfig = {
-    apiKey: "AIzaSyArxlflQuP2x_nlNMUre8UX87q4hzoMicw",
-    authDomain: "the-ledger-29m04.firebaseapp.com",
-    projectId: "the-ledger-29m04",
-    storageBucket: "the-ledger-29m04.firebasestorage.app",
-    messagingSenderId: "602760375391",
-    appId: "1:602760375391:web:50890e9930a91f4e0fbfea"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyArxlflQuP2x_nlNMUre8UX87q4hzoMicw",
+  authDomain: "the-ledger-29m04.firebaseapp.com",
+  projectId: "the-ledger-29m04",
+  storageBucket: "the-ledger-29m04.firebasestorage.app",
+  messagingSenderId: "602760375391",
+  appId: "1:602760375391:web:50890e9930a91f4e0fbfea"
+};
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -1186,6 +1451,11 @@ const db = getFirestore(app);
 
 let currentUser = null;
 let unsubscribeHabits = null;
+let unsubscribeProfile = null;
+let userProfile = { name: '' };
+let justSignedUp = false;
+let needsNewQuote = true; // Flag to change quote only on login
+let currentQuote = "";
 
 // ==========================================
 // GLOBAL STATE
@@ -1202,6 +1472,20 @@ const yesterday = yesterdayISO();
 const todayIdx = weekISO.indexOf(today);
 
 // ==========================================
+// TOAST UTILITY
+// ==========================================
+const toastEl = document.getElementById('toast');
+let toastTimer = null;
+function showToast(message, type = '') {
+  clearTimeout(toastTimer);
+  toastEl.textContent = message;
+  toastEl.className = 'toast show ' + type;
+  toastTimer = setTimeout(() => {
+    toastEl.classList.remove('show');
+  }, 3000);
+}
+
+// ==========================================
 // AUTHENTICATION LOGIC
 // ==========================================
 const authOverlay = document.getElementById('authOverlay');
@@ -1212,8 +1496,6 @@ const authModeText = document.getElementById('authModeText');
 const authError = document.getElementById('authError');
 const authEmail = document.getElementById('authEmail');
 const authPass = document.getElementById('authPass');
-const logoutBtn = document.getElementById('logoutBtn');
-const userEmailDisplay = document.getElementById('userEmailDisplay');
 const forgotPassLink = document.getElementById('forgotPassLink');
 
 let isLoginMode = true;
@@ -1224,10 +1506,9 @@ authToggle.addEventListener('click', () => {
   authSubmitBtn.textContent = isLoginMode ? "Login" : "Sign Up";
   authToggle.innerHTML = isLoginMode ? "Don't have an account? <b>Sign up</b>" : "Already have an account? <b>Login</b>";
   authError.style.display = 'none';
-  forgotPassLink.style.display = isLoginMode ? 'block' : 'none'; // Hide reset link on signup
+  forgotPassLink.style.display = isLoginMode ? 'block' : 'none';
 });
 
-// Forgot Password Logic
 forgotPassLink.addEventListener('click', async () => {
   const email = authEmail.value.trim();
   if (!email) {
@@ -1264,6 +1545,7 @@ authSubmitBtn.addEventListener('click', async () => {
       await signInWithEmailAndPassword(auth, email, pass);
     } else {
       await createUserWithEmailAndPassword(auth, email, pass);
+      justSignedUp = true;
     }
   } catch (error) {
     authError.textContent = error.message.replace('Firebase: ', '');
@@ -1272,21 +1554,372 @@ authSubmitBtn.addEventListener('click', async () => {
   }
 });
 
-logoutBtn.addEventListener('click', () => signOut(auth));
-
 onAuthStateChanged(auth, (user) => {
   if (user) {
     currentUser = user;
-    userEmailDisplay.textContent = user.email;
+    needsNewQuote = true; // Set flag to true on login so we fetch a new quote
     authOverlay.style.display = 'none';
     appContainer.style.display = 'block';
     initHabitListener();
+    initProfileListener();
   } else {
     currentUser = null;
-    if(unsubscribeHabits) unsubscribeHabits();
+    if(unsubscribeHabits) { unsubscribeHabits(); unsubscribeHabits = null; }
+    if(unsubscribeProfile) { unsubscribeProfile(); unsubscribeProfile = null; }
+    userProfile = { name: '' };
+    justSignedUp = false;
+    currentQuote = "";
+    // Close all modals & dropdown
+    document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+    document.getElementById('profileDropdown').classList.remove('active');
+    document.getElementById('profileBtn').classList.remove('open');
     authOverlay.style.display = 'flex';
     appContainer.style.display = 'none';
   }
+});
+
+// ==========================================
+// PROFILE MANAGEMENT
+// ==========================================
+const profileBtn = document.getElementById('profileBtn');
+const profileDropdown = document.getElementById('profileDropdown');
+const profileAvatar = document.getElementById('profileAvatar');
+const dropdownName = document.getElementById('dropdownName');
+const dropdownEmail = document.getElementById('dropdownEmail');
+const welcomeMessage = document.getElementById('welcomeMessage');
+
+const motivationalQuotes = [
+  "Discipline is the bridge between goals and accomplishment.",
+  "You are what you repeatedly do. Let's make today count.",
+  "Excellence is not an act, but a habit.",
+  "Small steps every day lead to big changes.",
+  "The secret of your future is hidden in your daily routine.",
+  "Consistency is the architect of achievement.",
+  "Great things are done by a series of small things brought together.",
+  "What you do today can improve all your tomorrows.",
+  "Success is the sum of small efforts repeated day in and day out.",
+  "Motivation gets you going, but discipline keeps you growing.",
+  "A year from now you will wish you started today.",
+  "The pain of discipline weighs ounces, the pain of regret weighs tons.",
+  "Your future is created by what you do today, not tomorrow.",
+  "Don't watch the clock; do what it does. Keep going.",
+  "Habits are the compound interest of self-improvement."
+];
+
+function initProfileListener() {
+  const userDocRef = doc(db, "users", currentUser.uid);
+  unsubscribeProfile = onSnapshot(userDocRef, (docSnap) => {
+    if (docSnap.exists()) {
+      userProfile = docSnap.data() || {};
+    } else {
+      userProfile = {};
+      // If user just signed up, prompt them to set a name
+      if (justSignedUp) {
+        justSignedUp = false;
+        setTimeout(() => openEditNameModal(true), 400);
+      }
+    }
+    updateProfileUI();
+  }, (error) => {
+    console.error("Error fetching profile: ", error);
+  });
+}
+
+function getDisplayName() {
+  return userProfile.name && userProfile.name.trim() ? userProfile.name.trim() : '';
+}
+
+function getInitial() {
+  const name = getDisplayName();
+  if (name) return name.charAt(0).toUpperCase();
+  if (currentUser && currentUser.email) return currentUser.email.charAt(0).toUpperCase();
+  return 'U';
+}
+
+function updateProfileUI() {
+  const name = getDisplayName();
+  const email = currentUser ? currentUser.email : '';
+  
+  // Header Avatar
+  profileAvatar.textContent = getInitial();
+  
+  // Dropdown Content
+  dropdownName.textContent = name || 'Welcome';
+  dropdownEmail.textContent = email;
+
+  // Fetch new quote ONLY on login/re-login
+  if(needsNewQuote) {
+    const randomIndex = Math.floor(Math.random() * motivationalQuotes.length);
+    currentQuote = motivationalQuotes[randomIndex];
+    needsNewQuote = false;
+  }
+  
+  const displayName = name || 'Traveler';
+  welcomeMessage.innerHTML = `Welcome, <span class="welcome-name">${displayName}</span>. <span class="welcome-quote">"${currentQuote}"</span>`;
+}
+
+// Toggle dropdown
+profileBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const isActive = profileDropdown.classList.toggle('active');
+  profileBtn.classList.toggle('open', isActive);
+  profileBtn.setAttribute('aria-expanded', isActive ? 'true' : 'false');
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+    profileDropdown.classList.remove('active');
+    profileBtn.classList.remove('open');
+    profileBtn.setAttribute('aria-expanded', 'false');
+  }
+});
+
+// Close dropdown on Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    profileDropdown.classList.remove('active');
+    profileBtn.classList.remove('open');
+  }
+});
+
+// ==========================================
+// EDIT NAME
+// ==========================================
+const editNameOverlay = document.getElementById('editNameOverlay');
+const editNameInputField = document.getElementById('editNameInputField');
+const saveNameBtn = document.getElementById('saveNameBtn');
+const cancelEditNameBtn = document.getElementById('cancelEditNameBtn');
+
+document.getElementById('editNameOption').addEventListener('click', () => {
+  profileDropdown.classList.remove('active');
+  profileBtn.classList.remove('open');
+  openEditNameModal(false);
+});
+
+function openEditNameModal(isNewUser) {
+  editNameInputField.value = getDisplayName();
+  if (isNewUser) {
+    editNameInputField.placeholder = "What should we call you?";
+  }
+  editNameOverlay.classList.add('active');
+  setTimeout(() => {
+    editNameInputField.focus();
+    editNameInputField.select();
+  }, 50);
+}
+
+cancelEditNameBtn.addEventListener('click', () => {
+  editNameOverlay.classList.remove('active');
+});
+
+editNameInputField.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') saveNameBtn.click();
+});
+
+saveNameBtn.addEventListener('click', async () => {
+  const newName = editNameInputField.value.trim();
+  if (!newName) {
+    editNameInputField.focus();
+    return;
+  }
+  if (newName.length > 40) {
+    showToast('Name is too long (max 40 characters).', 'error');
+    return;
+  }
+  
+  try {
+    saveNameBtn.disabled = true;
+    saveNameBtn.textContent = 'Saving...';
+    const userDocRef = doc(db, "users", currentUser.uid);
+    await setDoc(userDocRef, { name: newName }, { merge: true });
+    editNameOverlay.classList.remove('active');
+    showToast('Name updated successfully.', 'success');
+  } catch (error) {
+    showToast('Failed to update name: ' + error.message.replace('Firebase: ', ''), 'error');
+  } finally {
+    saveNameBtn.disabled = false;
+    saveNameBtn.textContent = 'Save Name';
+  }
+});
+
+// ==========================================
+// CHANGE PASSWORD
+// ==========================================
+const changePassOverlay = document.getElementById('changePassOverlay');
+const currentPassInput = document.getElementById('currentPassInput');
+const newPassInput = document.getElementById('newPassInput');
+const confirmPassInput = document.getElementById('confirmPassInput');
+const savePassBtn = document.getElementById('savePassBtn');
+const cancelChangePassBtn = document.getElementById('cancelChangePassBtn');
+const passChangeError = document.getElementById('passChangeError');
+
+document.getElementById('changePassOption').addEventListener('click', () => {
+  profileDropdown.classList.remove('active');
+  profileBtn.classList.remove('open');
+  currentPassInput.value = '';
+  newPassInput.value = '';
+  confirmPassInput.value = '';
+  passChangeError.style.display = 'none';
+  changePassOverlay.classList.add('active');
+  setTimeout(() => currentPassInput.focus(), 50);
+});
+
+cancelChangePassBtn.addEventListener('click', () => {
+  changePassOverlay.classList.remove('active');
+});
+
+function showPassError(msg) {
+  passChangeError.textContent = msg;
+  passChangeError.style.color = 'var(--danger)';
+  passChangeError.style.display = 'block';
+}
+
+savePassBtn.addEventListener('click', async () => {
+  const curPass = currentPassInput.value;
+  const newPass = newPassInput.value;
+  const confPass = confirmPassInput.value;
+  
+  passChangeError.style.display = 'none';
+  
+  if (!curPass || !newPass || !confPass) {
+    showPassError("All fields are required.");
+    return;
+  }
+  if (newPass.length < 6) {
+    showPassError("New password must be at least 6 characters.");
+    return;
+  }
+  if (newPass !== confPass) {
+    showPassError("New passwords do not match.");
+    return;
+  }
+  if (newPass === curPass) {
+    showPassError("New password must be different from current password.");
+    return;
+  }
+  
+  try {
+    savePassBtn.disabled = true;
+    savePassBtn.textContent = 'Updating...';
+    
+    // Re-authenticate user with current password
+    const credential = EmailAuthProvider.credential(currentUser.email, curPass);
+    await reauthenticateWithCredential(currentUser, credential);
+    
+    // Update password
+    await updatePassword(currentUser, newPass);
+    
+    changePassOverlay.classList.remove('active');
+    showToast('Password updated successfully.', 'success');
+  } catch (error) {
+    let msg = error.message.replace('Firebase: ', '');
+    if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+      msg = "Current password is incorrect.";
+    } else if (error.code === 'auth/too-many-requests') {
+      msg = "Too many attempts. Please try again later.";
+    }
+    showPassError(msg);
+  } finally {
+    savePassBtn.disabled = false;
+    savePassBtn.textContent = 'Update Password';
+  }
+});
+
+// ==========================================
+// DELETE ACCOUNT
+// ==========================================
+const deleteAccountOverlay = document.getElementById('deleteAccountOverlay');
+const deletePassInput = document.getElementById('deletePassInput');
+const deleteConfirmCheck = document.getElementById('deleteConfirmCheck');
+const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+const cancelDeleteAccountBtn = document.getElementById('cancelDeleteAccountBtn');
+const deleteAccountError = document.getElementById('deleteAccountError');
+
+document.getElementById('deleteAccountOption').addEventListener('click', () => {
+  profileDropdown.classList.remove('active');
+  profileBtn.classList.remove('open');
+  deletePassInput.value = '';
+  deleteConfirmCheck.checked = false;
+  confirmDeleteBtn.disabled = true;
+  deleteAccountError.style.display = 'none';
+  deleteAccountOverlay.classList.add('active');
+  setTimeout(() => deletePassInput.focus(), 50);
+});
+
+deleteConfirmCheck.addEventListener('change', () => {
+  confirmDeleteBtn.disabled = !deleteConfirmCheck.checked;
+});
+
+cancelDeleteAccountBtn.addEventListener('click', () => {
+  deleteAccountOverlay.classList.remove('active');
+});
+
+confirmDeleteBtn.addEventListener('click', async () => {
+  const pass = deletePassInput.value;
+  deleteAccountError.style.display = 'none';
+  
+  if (!pass) {
+    deleteAccountError.textContent = "Please enter your password.";
+    deleteAccountError.style.display = 'block';
+    return;
+  }
+  if (!deleteConfirmCheck.checked) {
+    deleteAccountError.textContent = "Please confirm you understand this action.";
+    deleteAccountError.style.display = 'block';
+    return;
+  }
+  
+  try {
+    confirmDeleteBtn.disabled = true;
+    confirmDeleteBtn.textContent = 'Deleting...';
+    
+    // Re-authenticate
+    const credential = EmailAuthProvider.credential(currentUser.email, pass);
+    await reauthenticateWithCredential(currentUser, credential);
+    
+    // Delete all habits in subcollection first
+    const habitsCol = collection(db, "users", currentUser.uid, "habits");
+    const snapshot = await getDocs(habitsCol);
+    const deletePromises = snapshot.docs.map(d => deleteDoc(d.ref));
+    await Promise.all(deletePromises);
+    
+    // Delete user document
+    const userDocRef = doc(db, "users", currentUser.uid);
+    try {
+      await deleteDoc(userDocRef);
+    } catch (e) {
+      // Document may not exist if user never set a name; ignore
+    }
+    
+    // Finally, delete the auth user
+    await deleteUser(currentUser);
+    
+    deleteAccountOverlay.classList.remove('active');
+    showToast('Account deleted successfully.', 'success');
+    // onAuthStateChanged will redirect to login
+  } catch (error) {
+    let msg = error.message.replace('Firebase: ', '');
+    if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+      msg = "Password is incorrect.";
+    } else if (error.code === 'auth/requires-recent-login') {
+      msg = "Please log out and log back in, then try again.";
+    }
+    deleteAccountError.textContent = msg;
+    deleteAccountError.style.display = 'block';
+  } finally {
+    confirmDeleteBtn.disabled = false;
+    confirmDeleteBtn.textContent = 'Delete Account';
+  }
+});
+
+// ==========================================
+// LOGOUT
+// ==========================================
+document.getElementById('logoutOption').addEventListener('click', () => {
+  profileDropdown.classList.remove('active');
+  profileBtn.classList.remove('open');
+  signOut(auth);
 });
 
 // ==========================================
@@ -2274,7 +2907,7 @@ function submitNewHabit(){
   }
 
   const sortedDays = [...tempSelectedDays].sort((a,b) => a-b);
-  addHabitToDb(val, cadence, sortedDays); // Save to Firebase
+  addHabitToDb(val, cadence, sortedDays);
   input.value = '';
   cadenceSelect.value = 'daily';
   cadenceSelect.dispatchEvent(new Event('change'));
@@ -2287,7 +2920,7 @@ input.addEventListener('keydown', (e)=>{
 });
 
 // ==========================================
-// WIRE UP EDIT MODAL
+// WIRE UP EDIT MODAL (Habit)
 // ==========================================
 const editOverlay = document.getElementById('editOverlay');
 const editNameInput = document.getElementById('editNameInput');
@@ -2404,6 +3037,15 @@ saveEditBtn.addEventListener('click', () => {
     days: sortedDays
   });
   closeEditModal();
+});
+
+// Close any modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      overlay.classList.remove('active');
+    }
+  });
 });
 
 </script>
